@@ -1186,7 +1186,21 @@ if jlreq ~= nil then
 	-- ぶら下げ組を有効にする．
 	if jlreq.burasage == true then
 		for _,class in ipairs({6,7}) do
-			table.insert(jfm[class].end_adjust,-0.5)
+			table.insert(jfm[class].end_adjust, 1.0)
+			local w = jfm[class].width
+			jfm[class].width = 0
+			for c, glue in pairs(jfm[class].glue) do
+				jfm[class].glue[c][1] = glue[1] + w
+				if glue.ratio == nil then glue.ratio = 0.5 end
+				jfm[class].glue[c].ratio = glue.ratio * (glue[1] - w) / glue[1]
+			end
+			for c,_ in pairs(jfm) do
+				if type(c) == "number" then
+					if jfm[class].glue[c] == nil and (jfm[class].kern == nil or jfm[class].kern[c] == nil) then
+						jfm[class].glue[c] = {w, 0, 0, ratio = 0}
+					end
+				end
+			end
 		end
 	end
 end
